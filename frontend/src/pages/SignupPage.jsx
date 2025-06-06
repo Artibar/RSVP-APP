@@ -1,4 +1,3 @@
-
 import React, { useState, useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -8,22 +7,75 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await signup(email, password, name);
-    if (res.token) navigate("/dashboard");
-    else alert(res.message || "Signup failed");
+    setLoading(true);
+    setError("");
+    
+    const result = await signup(name, email, password);
+    
+    if (result.success) {
+      navigate("/dashboard");
+    } else {
+      setError(result.message);
+    }
+    
+    setLoading(false);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Signup</h2>
-      <input value={name} onChange={e => setName(e.target.value)} placeholder="Name" required />
-      <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" required />
-      <input value={password} onChange={e => setPassword(e.target.value)} type="password" placeholder="Password" required />
-      <button type="submit">Signup</button>
-    </form>
+    <div style={{ maxWidth: "400px", margin: "50px auto", padding: "20px" }}>
+      <form onSubmit={handleSubmit}>
+        <h2>Sign Up</h2>
+        {error && <div style={{ color: "red", marginBottom: "10px" }}>{error}</div>}
+        <div style={{ marginBottom: "10px" }}>
+          <input 
+            value={name} 
+            onChange={e => setName(e.target.value)} 
+            placeholder="Full Name" 
+            required 
+            style={{ width: "100%", padding: "8px" }}
+          />
+        </div>
+        <div style={{ marginBottom: "10px" }}>
+          <input 
+            value={email} 
+            onChange={e => setEmail(e.target.value)} 
+            placeholder="Email" 
+            type="email"
+            required 
+            style={{ width: "100%", padding: "8px" }}
+          />
+        </div>
+        <div style={{ marginBottom: "10px" }}>
+          <input 
+            value={password} 
+            onChange={e => setPassword(e.target.value)} 
+            type="password" 
+            placeholder="Password" 
+            required 
+            style={{ width: "100%", padding: "8px" }}
+          />
+        </div>
+        <button 
+          type="submit" 
+          disabled={loading}
+          style={{ 
+            width: "100%", 
+            padding: "10px", 
+            backgroundColor: "#28a745", 
+            color: "white", 
+            border: "none",
+            borderRadius: "4px"
+          }}
+        >
+          {loading ? "Creating Account..." : "Sign Up"}
+        </button>
+      </form>
+    </div>
   );
 }
